@@ -1,111 +1,145 @@
-# sapper-template
-
-The default [Sapper](https://github.com/sveltejs/sapper) template, available for Rollup and webpack.
+``# io-sdk admin 
 
 
-## Getting started
+this document describe implementation of this app usign Sapper
+
+original README was saved in sapper.md
 
 
-### Using `degit`
+date|author|notes
+---|---|---
+2020-07-19|lcg|first draft
+2020-09-05|lcg|here i describe difference between sapper and svelte versions
+2020-09-08|lcg|api.js
 
-[`degit`](https://github.com/Rich-Harris/degit) is a scaffolding tool that lets you create a directory from a branch in a repository. Use either the `rollup` or `webpack` branch in `sapper-template`:
+## introduction
 
-```bash
-# for Rollup
-npx degit "sveltejs/sapper-template#rollup" my-app
-# for webpack
-npx degit "sveltejs/sapper-template#webpack" my-app
-```
+this application provides 7 basic commands:
 
+* Import from URL
+* Custom Import
+* Send Messages
+* Send Single Message
+* Debug
+* Development
+* About
 
-### Using GitHub templates
+the first version of this application, developed as a plain Svelte app, without Sapper, gives access to those functions through several routes, implemented using svelte-routes:
 
-Alternatively, you can use GitHub's template feature with the [sapper-template-rollup](https://github.com/sveltejs/sapper-template-rollup) or [sapper-template-webpack](https://github.com/sveltejs/sapper-template-webpack) repositories.
+* import
+* custom
+* ship
+* send
+* debug
+* editor
+* about
 
+each route is related to an external command or to a Svelte component, according to this table:
 
-### Running the project
+Menu command | Route | Component |Action
+----|----|----|----
+Import from URL|import| Import | util/import
+Custom Import |custom|  Import | iosdk/import
+Send Messages |ship| Ship |
+Send Single Message |send|Send |
+Debug|debug|Debug |
+Development | editor || http://localhost:3000
+About | about | About |
+|/send?key|Send|
+|/debug?key|DebugData
 
-However you get the code, you can install dependencies and run the project in development mode with:
+  
 
-```bash
-cd my-app
-npm install # or yarn
-npm run dev
-```
+## Sapper implementation
 
-Open up [localhost:3000](http://localhost:3000) and start clicking around.
+Sapper provide built-in routes management, but the mechanism is a little different from svelte-routes.  
 
-Consult [sapper.svelte.dev](https://sapper.svelte.dev) for help getting started.
+Each routes it’s not declared but is automatically detected from Sapper looking at the files and directories contained in src/routes directory. 
 
+In order to activate a route is enough a link to a url containing the name of the route itself. 
 
-## Structure
+If we need to associate different routes to the same component (like for example the component Import) with Svelte it’s possibile to pass props, but with Sapper we need to add query parameters to the url.
 
-Sapper expects to find two directories in the root of your project —  `src` and `static`.
-
-
-### src
-
-The [src](src) directory contains the entry points for your app — `client.js`, `server.js` and (optionally) a `service-worker.js` — along with a `template.html` file and a `routes` directory.
-
-
-#### src/routes
-
-This is the heart of your Sapper app. There are two kinds of routes — *pages*, and *server routes*.
-
-**Pages** are Svelte components written in `.svelte` files. When a user first visits the application, they will be served a server-rendered version of the route in question, plus some JavaScript that 'hydrates' the page and initialises a client-side router. From that point forward, navigating to other pages is handled entirely on the client for a fast, app-like feel. (Sapper will preload and cache the code for these subsequent pages, so that navigation is instantaneous.)
-
-**Server routes** are modules written in `.js` files, that export functions corresponding to HTTP methods. Each function receives Express `request` and `response` objects as arguments, plus a `next` function. This is useful for creating a JSON API, for example.
-
-There are three simple rules for naming the files that define your routes:
-
-* A file called `src/routes/about.svelte` corresponds to the `/about` route. A file called `src/routes/blog/[slug].svelte` corresponds to the `/blog/:slug` route, in which case `params.slug` is available to the route
-* The file `src/routes/index.svelte` (or `src/routes/index.js`) corresponds to the root of your app. `src/routes/about/index.svelte` is treated the same as `src/routes/about.svelte`.
-* Files and directories with a leading underscore do *not* create routes. This allows you to colocate helper modules and components with the routes that depend on them — for example you could have a file called `src/routes/_helpers/datetime.js` and it would *not* create a `/_helpers/datetime` route
-
-
-### static
-
-The [static](static) directory contains any static assets that should be available. These are served using [sirv](https://github.com/lukeed/sirv).
-
-In your [service-worker.js](src/service-worker.js) file, you can import these as `files` from the generated manifest...
-
-```js
-import { files } from '@sapper/service-worker';
-```
-
-...so that you can cache them (though you can choose not to, for example if you don't want to cache very large files).
+The command Development don’t require an associated route, it’s enough to specify the final destination.
 
 
-## Bundler config
-
-Sapper uses Rollup or webpack to provide code-splitting and dynamic imports, as well as compiling your Svelte components. With webpack, it also provides hot module reloading. As long as you don't do anything daft, you can edit the configuration files to add whatever plugins you'd like.
-
-
-## Production mode and deployment
-
-To start a production version of your app, run `npm run build && npm start`. This will disable live reloading, and activate the appropriate bundler plugins.
-
-You can deploy your application to any environment that supports Node 10 or above. As an example, to deploy to [Vercel Now](https://vercel.com) when using `sapper export`, run these commands:
-
-```bash
-npm install -g vercel
-vercel
-```
-
-If your app can't be exported to a static site, you can use the [now-sapper](https://github.com/thgh/now-sapper) builder. You can find instructions on how to do so in its [README](https://github.com/thgh/now-sapper#basic-usage).
+Menu command | Route | Component |Action
+----|----|----|----
+Import from URL|/import?action=1| Import | util/import
+Custom Import |/import?action=2|  Import | iosdk/import
+Send Messages |/ship| Ship |
+Send Single Message |/send|Send |
+Debug| /debug|Debug |
+Development |  http://localhost:3000||
+About | /about | About |
+|/send?key|Send|
+|/debug?key|Debug
 
 
-## Using external components
+for this reason src/routes contains the following files/directories:
 
-When using Svelte components installed from npm, such as [@sveltejs/svelte-virtual-list](https://github.com/sveltejs/svelte-virtual-list), Svelte needs the original component source (rather than any precompiled JavaScript that ships with the component). This allows the component to be rendered server-side, and also keeps your client-side app smaller.
+* import
+* ship
+* send
+* debug
+* about
 
-Because of that, it's essential that the bundler doesn't treat the package as an *external dependency*. You can either modify the `external` option under `server` in [rollup.config.js](rollup.config.js) or the `externals` option in [webpack.config.js](webpack.config.js), or simply install the package to `devDependencies` rather than `dependencies`, which will cause it to get bundled (and therefore compiled) with your app:
+some of this commands/components are connected to extra routes or depends on other components.
 
-```bash
-npm install -D @sveltejs/svelte-virtual-list
-```
+### Import
+
+the Import component has several states connected to many different sub components:
 
 
-## Bugs and feedback
+condition | sub component
+----|----
+state.form | ImportForm |
+state.error| - |
+state.data && !isPreview | ImportData |
+state.data && isPreview | ImportPreview |
 
-Sapper is in early development, and may have the odd rough edge here and there. Please be vocal over on the [Sapper issue tracker](https://github.com/sveltejs/sapper/issues).
+### Ship
+
+the Ship component uses /send route, with a slug to identify the msg to be sent. 
+
+### Debug
+
+Also the Debug component uses /debug route, with a slug to identify the msg to be sent. The Svelte version uses a DebugData component, the Sapper version uses directly the Debug component.
+
+
+## application state
+
+
+In order to keep the application state, a couple of stores are defined in /src/components/store.js:
+
+* formData
+* reload
+
+formData is used by Import and ImportForm components
+
+reload is used by Debug component
+
+## api
+
+External method are managed through api defined in src/node_modules/api
+
+Every endpoint uses as base url `http://localhost:3280/api/v1/web/guest` 
+
+Api | endpoint | used by components
+---|--- | ---
+msg.load | iosdk/import , custom/import | Import
+msg.save | util/store | Import
+cache.scan | util/cache?scan=message:* | Ship , Debug
+cache.get | util/cache?get= | Ship
+cache.del | util/cache?del= | Ship
+cache.clean | util/cache?clean= | Debug
+
+
+
+
+
+
+
+
+
+

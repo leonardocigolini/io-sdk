@@ -1,5 +1,16 @@
+
+<script context="module">
+  export async function preload({ params, query}) {
+    url = base + params.action;
+    const res = await fetch(url);
+    state = await res.json();
+    console.log(state);
+    loading = false;
+  }
+</script>
+
 <script>
-  export let action;
+ // export let action;
 
   import { formData } from "../../components/store";
   import { onMount } from "svelte";
@@ -9,12 +20,14 @@
 
   const base = "http://localhost:3280/api/v1/web/guest/";
 
-  let url = base + action;
+ // let url = base + action;
+  let url = base;  // temporary value, updated by preload()
   let loading = true;
   let state = {};
   let message = "uploading...";
   let isPreview = false;
 
+  // deprecated ! 
   async function start() {
     const res = await fetch(url);
     state = await res.json();
@@ -52,7 +65,7 @@
       });
   }
 
-  onMount(start);
+ // onMount(start);
   formData.subscribe(value => {
     state = value;
     if ("data" in state && !isPreview) 

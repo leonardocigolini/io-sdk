@@ -1,6 +1,6 @@
 <script>
   export let key = "";
-  import { navigate, Link } from "svelte-routing";
+  //import { navigate, Link } from "svelte-routing";
   import { onMount } from "svelte";
 
   let state = {};

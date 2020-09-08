@@ -1,5 +1,5 @@
 <script>
-  import { formData } from "../components/store";
+  import { reload } from "../../components/store";
   import { onMount } from "svelte";
 
   const cacheUrl = "http://localhost:3280/api/v1/web/guest/util/cache?";
@@ -16,6 +16,8 @@
   }
 
   async function start() {
+    console.log('debug start '+scanUrl+pattern);
+
     let res = await fetch(scanUrl + pattern);
     if (!res.ok) {
       state.error = res.statusText;
@@ -27,6 +29,8 @@
     } else {
       state.error = "cannot retrieve data";
     }
+    console.log(state);
+
   }
   
   function search(what) {

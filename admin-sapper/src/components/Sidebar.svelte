@@ -8,12 +8,12 @@
       <aside>
         <div class="link-list-wrapper">
           <ul class="link-list">
-              <MenuItem icon="fas fa-file-import" description="Import from URL" to="import"/>
-              <MenuItem icon="fa fa-wrench" description="Custom Import" to="custom"/>
+              <MenuItem icon="fas fa-file-import" description="Import from URL" to="import?action=1"/>
+              <MenuItem icon="fa fa-wrench" description="Custom Import" to="import?action=2"/>
               <MenuItem icon="fas fa-shipping-fast" description="Send Messages" to="ship"/>
               <MenuItem icon="far fa-envelope" description="Single Message" to="send"/>
               <MenuItem icon="fas fa-bug" description="Debugging" to="debug"/>
-              <MenuItem icon="fas fa-file-code" description="Development" url="http://localhost:3000" to="editor"/>
+              <MenuItem icon="fas fa-file-code" description="Development" to="http://localhost:3000" />
               <MenuItem icon="fas fa-info-circle" description="About" to="about"/>
           </ul>
         </div>

@@ -1,24 +1,30 @@
+<script context="module">
+  export async function preload({ params, query}) {
+    let action = query.action;
+    return {action}
+  }
+</script>
+
 <script>
   export let action;
+ // export let url;
 
+  import * as api from 'api';
   import { formData } from "../../components/store";
   import { onMount } from "svelte";
   import ImportForm from "./ImportForm.svelte";
   import ImportData from "./ImportData.svelte";
   import ImportPreview from "./ImportPreview.svelte";
 
-  const base = "http://localhost:3280/api/v1/web/guest/";
-
-  let url = base + action;
   let loading = true;
   let state = {};
   let message = "uploading...";
   let isPreview = false;
 
-  async function start() {
-    const res = await fetch(url);
-    state = await res.json();
+  async function loadData() {
+    
     console.log(state);
+    state  = await api.msg.load(action);
     loading = false;
   }
 
@@ -26,37 +32,25 @@
     console.log('confirm');
     loading = true;
     isPreview = false;
-		save(state.data);
+		saveData(state.data);
 	}
 
-  async function save(data) {
-    let u = base + "util/store";
-    console.log("save", u, data);
-    fetch(u, {
-      method: "POST",
-      body: JSON.stringify({"data":data}),
-      headers: { "Content-Type": "application/json" }
-    })
-      .then(async function(res) {
-        console.log(res)
-        if(res.ok) {
-          message = "OK";
-        } else {
-          message = res.statusText
-        }
-        loading = false;
-      })
-      .catch(function(err) {
-        message = err.message;
-        loading = false;
-      });
+  async function saveData(data) {
+    res = await api.msg.save(data);
+    if (res.ok) {
+      message = "OK";
+    } else {
+      message = res.statusText
+    }
+    loading = false;
   }
 
-  onMount(start);
+  onMount(loadData);
+
   formData.subscribe(value => {
     state = value;
     if ("data" in state && !isPreview) 
-       save(state["data"]);
+       saveData(state.data);
   });
 </script>
 
@@ -65,13 +59,13 @@
   {#if loading}
     <div>loading...</div>
   {:else if state.form}
-    <ImportForm form={state.form} {url} />
+    <ImportForm form={state.form} {action} />
     <input type=checkbox bind:checked={isPreview}> Mostra anteprima
   {:else if state.error}
     <div class="alert alert-danger" role="alert">Error: {state.error}</div>
     <div>
-      <button type="button" class="btn btn-primary" on:click={start}>
-        Restart
+      <button type="button" class="btn btn-primary" on:click={loadData}>
+        Retry
       </button>
     </div>
   {:else if state.data}
@@ -90,7 +84,7 @@
     {/if}
   {:else}
     <p>Cannot contact importer, please redeploy it.</p>
-    <button type="button" class="btn btn-primary" on:click={start}>
+    <button type="button" class="btn btn-primary" on:click={loadData}>
       Retry
     </button>
   {/if}

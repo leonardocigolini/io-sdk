@@ -4,7 +4,7 @@
 
   import { formData } from "../../components/store";
   export let form = {};
-  export let url;
+  export const action = 1;
 
   async function parseForm() {
     let submit = await fetch(uploadUrl, {

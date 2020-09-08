@@ -1,7 +1,7 @@
 <script>
   export let key = "";
 
-  import { formData } from "../components/store";
+  import { formData } from "../../components/store";
   import { onMount } from "svelte";
 
   let base = "http://localhost:3280/api/v1/web/guest/";
